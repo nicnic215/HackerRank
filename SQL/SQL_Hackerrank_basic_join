@@ -1,0 +1,48 @@
+/*Given the CITY and COUNTRY tables, query the sum of the populations of all cities where the CONTINENT is 'Asia'.
+
+Note: CITY.CountryCode and COUNTRY.Code are matching key columns. */
+
+select sum(city.population) from city left join country on city.countrycode=country.code where continent='Asia';
+
+/* Given the CITY and COUNTRY tables, query the names of all cities where the CONTINENT is 'Africa'.
+
+Note: CITY.CountryCode and COUNTRY.Code are matching key columns.*/
+
+select city.name from city left outer join country on city.countrycode=country.code where continent='Africa';
+
+/* Given the CITY and COUNTRY tables, query the names of all the continents (COUNTRY.Continent) and their respective average city populations (CITY.Population) rounded down to the nearest integer.
+
+Note: CITY.CountryCode and COUNTRY.Code are matching key columns. */
+
+select country.continent, floor(avg(city.population))from city join country on country.code=city.countrycode group by country.continent;
+
+/* You are given two tables: Students and Grades. Students contains three columns ID, Name and Marks. */
+
+SELECT IF(g.Grade<8, NULL, s.Name), g.Grade, s.Marks FROM Students AS s JOIN Grades AS g ON s.Marks BETWEEN g.Min_Mark AND g.Max_Mark ORDER BY g.Grade DESC, s.Name, s.Marks;
+
+
+/* Julia just finished conducting a coding contest, and she needs your help assembling the leaderboard! Write a query to print the respective hacker_id and name of hackers who achieved full scores for more than one challenge. Order your output in descending order by the total number of challenges in which the hacker earned a full score. If more than one hacker received full scores in same number of challenges, then sort them by ascending hacker_id. */
+
+select h.hacker_id, h.name from submissions as s join hackers as h on s.hacker_id = h.hacker_id join challenges as c on s.challenge_id = c.challenge_id join difficulty as d on c.difficulty_level = d.difficulty_level where s.score = d.score group by h.hacker_id, h.name having count(*) >1 order by count(*) desc, h.hacker_id;
+
+/* Harry Potter and his friends are at Ollivander's with Ron, finally replacing Charlie's old broken wand.
+
+Hermione decides the best way to choose is by determining the minimum number of gold galleons needed to buy each non-evil wand of high power and age. Write a query to print the id, age, coins_needed, and power of the wands that Ron's interested in, sorted in order of descending power. If more than one wand has same power, sort the result in order of descending age. */
+
+select id, age, m.coins_needed, m.power from
+(select code, power, min(coins_needed) as coins_needed from Wands group by code, power) as m
+join wands as w on m.code=w.code and m.power=w.power and
+m.coins_needed = w.coins_needed
+join wands_property as p on m.code=p.code
+where p.is_evil=0
+order by m.power desc, age desc;
+
+/* Julia asked her students to create some coding challenges. Write a query to print the hacker_id, name, and the total number of challenges created by each student. Sort your results by the total number of challenges in descending order. If more than one student created the same number of challenges, then sort the result by hacker_id. If more than one student created the same number of challenges and the count is less than the maximum number of challenges created, then exclude those students from the result. */
+
+select c.hacker_id, h.name, count(c.challenge_id)as cnt from hackers as h
+join challenges as c on h.hacker_id = c.hacker_id
+group by c.hacker_id, h.name having
+cnt = (select count(c1.challenge_id) from Challenges as c1 group by c1.hacker_id order by count(*) desc limit 1) or
+cnt not in (select count(c2.challenge_id) from Challenges as c2 group by c2.hacker_id having c2.hacker_id <> c.hacker_id) order by cnt desc, hacker_id;
+
+/* */
